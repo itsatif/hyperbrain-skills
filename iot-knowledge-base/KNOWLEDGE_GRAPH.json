@@ -1,0 +1,141 @@
+{
+  "domain": "iot",
+  "services": [
+    {
+      "name": "iot-application",
+      "purpose": "MQTT to InfluxDB data bridge",
+      "language": "Node.js / TypeScript",
+      "responsibilities": [
+        "Subscribe to MQTT telemetry topics",
+        "Validate incoming message schemas",
+        "Transform to InfluxDB line protocol",
+        "Write to InfluxDB (device_component/autogen)",
+        "Publish acknowledgments"
+      ]
+    },
+    {
+      "name": "iot-feedback-handler",
+      "purpose": "Command execution feedback",
+      "language": "Node.js / TypeScript",
+      "responsibilities": [
+        "Subscribe to command_feedback topics",
+        "Update command status in InfluxDB",
+        "Notify jt-api-v2 via WebSocket",
+        "Log command failures",
+        "Retry failed commands"
+      ]
+    },
+    {
+      "name": "hostServices",
+      "purpose": "Edge device management",
+      "language": "Python / Node.js",
+      "responsibilities": [
+        "Device health monitoring",
+        "Firmware status tracking",
+        "NAS synchronization",
+        "Connection management",
+        "Local data buffering"
+      ]
+    }
+  ],
+  "mqtt": {
+    "broker": "Mosquitto / VerneMQ",
+    "version": "3.1.1 / 5.0",
+    "ports": {
+      "default": 1883,
+      "tls": 8883
+    },
+    "topic_structure": "dejoule/{site_id}/{service}/{entity_type}/{entity_id}/{message_type}",
+    "qos_levels": {
+      "0": "Fire and forget (telemetry)",
+      "1": "At least once (commands)",
+      "2": "Exactly once (critical data)"
+    },
+    "topics": {
+      "telemetry": "data/{siteId}/{controllerId}/{componentId}",
+      "commands": "command/{siteId}/{controllerId}/{componentId}",
+      "feedback": "command_feedback/{siteId}/{controllerId}",
+      "alerts": "alerts/{siteId}",
+      "state": "state/{siteId}/{controllerId}",
+      "logs": "logs/{siteId}/{service}"
+    }
+  },
+  "influxdb": {
+    "version": "2.x",
+    "buckets": {
+      "device_component/autogen": {
+        "purpose": "Raw sensor data",
+        "retention": "30 days",
+        "measurements": ["components"]
+      },
+      "cpa_logs_30_days": {
+        "purpose": "Optimization logs",
+        "retention": "30 days",
+        "measurements": ["asset_optimize", "asset_event"]
+      },
+      "iot-metrics": {
+        "purpose": "Application metrics",
+        "retention": "7 days",
+        "measurements": ["message_count", "processing_time"]
+      }
+    },
+    "measurements": {
+      "components": {
+        "tags": ["siteId", "componentId", "controllerid"],
+        "fields": "dynamic (energy_kwh, power_kw, temp_c, etc.)"
+      },
+      "asset_state": {
+        "tags": ["site_id", "id", "asset_name", "controllerid"],
+        "fields": ["present_value"]
+      },
+      "command_feedback": {
+        "tags": ["site_id", "id", "param_name", "asset_name"],
+        "fields": ["action_value", "action_status"]
+      }
+    }
+  },
+  "data_flows": {
+    "telemetry_ingestion": [
+      "HVAC Sensor → Controller (BACnet/Modbus)",
+      "Controller → MQTT Broker (telemetry)",
+      "MQTT → iot-application",
+      "iot-application → InfluxDB (device_component/autogen)",
+      "InfluxDB → jt-api-v2 (Flux query)",
+      "jt-api-v2 → JouleTRACK (HTTP/JSON)"
+    ],
+    "command_execution": [
+      "JouleTRACK → jt-api-v2 (HTTP POST)",
+      "jt-api-v2 → MQTT Broker (command)",
+      "MQTT → Controller (subscription)",
+      "Controller → HVAC Equipment (BACnet write)",
+      "Equipment → Controller (acknowledgment)",
+      "Controller → MQTT (command_feedback)",
+      "MQTT → iot-feedback-handler → InfluxDB (feedback)"
+    ]
+  },
+  "protocols": {
+    "bacnet": {
+      "purpose": "Building Automation",
+      "use_cases": ["Reading sensors", "Writing setpoints", "Monitoring status"]
+    },
+    "modbus": {
+      "purpose": "Industrial control",
+      "use_cases": ["Reading registers", "Writing coils", "Monitoring equipment"]
+    },
+    "mqtt": {
+      "purpose": "Device communication",
+      "use_cases": ["Telemetry", "Commands", "State updates", "Logs"]
+    }
+  },
+  "deployment": {
+    "development": "Docker Compose on local machine",
+    "staging": "Kubernetes (single node)",
+    "production": "Kubernetes (multi-node) + On-premise edge",
+    "edge": "Docker on customer premise (isolated VLAN)"
+  },
+  "monitoring": {
+    "metrics": ["Message throughput", "Processing latency", "Error rate"],
+    "logs": "ELK Stack (Elasticsearch, Logstash, Kibana)",
+    "alerts": "Grafana dashboards + AlertManager"
+  }
+}

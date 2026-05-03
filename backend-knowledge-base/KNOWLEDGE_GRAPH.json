@@ -1,0 +1,117 @@
+{
+  "domain": "backend",
+  "service": "jt-api-v2",
+  "version": "2.0.0",
+  "tech_stack": {
+    "runtime": "Node.js 18.x, 20.x",
+    "framework": "Express.js 4.18.x",
+    "language": "TypeScript 5.x",
+    "package_manager": "npm/yarn"
+  },
+  "architecture": {
+    "pattern": "Layered Architecture",
+    "layers": [
+      {
+        "name": "Controllers",
+        "responsibility": "Request handling, HTTP concerns",
+        "examples": ["auth.controller", "dashboard.controller", "device.controller"]
+      },
+      {
+        "name": "Middlewares",
+        "responsibility": "Auth, validation, error handling",
+        "examples": ["auth.middleware", "validation.middleware", "error.middleware"]
+      },
+      {
+        "name": "Services",
+        "responsibility": "Business logic, orchestration",
+        "examples": ["auth.service", "dashboard.service", "device.service"]
+      },
+      {
+        "name": "Repositories",
+        "responsibility": "Data access, database queries",
+        "examples": ["site.repository", "device.repository", "user.repository"]
+      },
+      {
+        "name": "Transformers",
+        "responsibility": "DTO → Domain → ViewModel conversion",
+        "examples": ["device.transformer", "consumption.transformer"]
+      }
+    ]
+  },
+  "databases": {
+    "postgresql": {
+      "purpose": "Metadata storage",
+      "connection_pool": "PgPool",
+      "tables": {
+        "users": "User accounts, authentication",
+        "sites": "Site information, location",
+        "devices": "HVAC components inventory",
+        "controllers": "BMS controller mapping",
+        "recipes": "Optimization recipes"
+      },
+      "queries_per_request": 1-5
+    },
+    "influxdb": {
+      "purpose": "Time-series telemetry",
+      "client": "node-influx",
+      "buckets": ["device_component/autogen", "cpa_logs_30_days", "asset_state"],
+      "query_language": "Flux",
+      "queries_per_request": 3-10
+    },
+    "redis": {
+      "purpose": "Caching, sessions",
+      "client": "ioredis",
+      "use_cases": ["JWT session storage", "API response cache", "Rate limiting"],
+      "ttl": {
+        "session": "7 days",
+        "cache": "5 minutes",
+        "rate_limit": "1 hour"
+      }
+    }
+  },
+  "api_endpoints": {
+    "authentication": {
+      "POST /api/auth/login": "Login, return JWT",
+      "POST /api/auth/logout": "Invalidate session",
+      "GET /api/auth/validate": "Validate token"
+    },
+    "dashboard": {
+      "GET /api/dashboard/:siteId/consumption": "Energy consumption data",
+      "GET /api/dashboard/:siteId/efficiency": "Plant efficiency metrics",
+      "GET /api/dashboard/:siteId/alarms": "Active alarms",
+      "GET /api/dashboard/:siteId/trends": "Historical trends"
+    },
+    "devices": {
+      "GET /api/sites/:siteId/devices": "List all devices",
+      "GET /api/devices/:deviceId": "Device details",
+      "POST /api/devices/:deviceId/command": "Send command",
+      "GET /api/devices/:deviceId/telemetry": "Real-time data"
+    },
+    "recipes": {
+      "GET /api/sites/:siteId/recipes": "List optimization recipes",
+      "POST /api/recipes/:recipeId/execute": "Trigger recipe",
+      "GET /api/recipes/:recipeId/status": "Execution status"
+    }
+  },
+  "patterns": {
+    "authentication": "JWT with Redis session store",
+    "authorization": "Role-based (Admin, Operator, Viewer, Service)",
+    "validation": "Joi schemas on all endpoints",
+    "error_handling": "Custom error classes + proper HTTP codes",
+    "logging": "Winston + structured logs",
+    "caching": "Redis for frequent queries (cache-aside pattern)",
+    "transformation": "DTO → Domain → ViewModel pipeline"
+  },
+  "coding_standards": {
+    "typescript": {
+      "strict_mode": true,
+      "no_any": true,
+      "explicit_types": true,
+      "strongly_typed_repos": true
+    },
+    "async": "async/await for all database operations",
+    "error_handling": "try-catch with proper error propagation",
+    "naming": "camelCase for files and variables",
+    "structure": "Barrel exports (index.ts) for clean imports"
+  }
+}

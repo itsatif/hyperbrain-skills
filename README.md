@@ -1,8 +1,7 @@
-# DeJoule Development Skills
+# AI-SDLC Skills Library
 
 **Author:** Atif Salafi <atif8486@gmail.com>
-**Organization:** DeJoule / Smart Joules
-**Purpose:** Complete AI-SDLC skill library for DeJoule product development
+**Purpose:** Complete AI-SDLC skill library for full-stack software development
 **Version:** 2.0.0
 **Last Updated:** 2026-05-03
 
@@ -10,10 +9,10 @@
 
 ## 🎯 Overview
 
-This is the **complete skill library for DeJoule product development**, covering:
-- **Frontend (FE)** - Angular, React, Vue, web applications
+This is a **comprehensive AI-SDLC skill library** for complete software development, covering:
+- **Frontend (FE)** - Angular, React, Vue, Next.js, web applications
 - **Backend (BE)** - Node.js, Python, Go, APIs, databases
-- **IoT** - MQTT, Kafka, data pipelines, device management
+- **IoT** - MQTT, Kafka, InfluxDB, data pipelines, device management
 - **Design** - Figma integration, design systems, UI/UX patterns
 - **Product** - PRD development, requirements gathering, feature specs
 - **DevOps** - CI/CD, Docker, Kubernetes, infrastructure
@@ -24,14 +23,28 @@ This library enables **complete AI-SDLC workflows** - from initial product requi
 
 ## 📚 Current Skills
 
-### Core Skills (JouleTRACK Patterns)
-1. **JouleTRACK Library** - Master index and learning paths
-2. **JouleTRACK Onboarding** - Team setup and system architecture
-3. **JouleTRACK Angular** - Frontend patterns (@itsatif's coding style)
-4. **TDD Workflow** - Test-driven development with Red-Green-Refactor
+### Core Skills
+1. **TDD Workflow** - Test-driven development with Red-Green-Refactor cycle
+2. **Angular Patterns** - Enterprise Angular development patterns
+3. **React Patterns** - Modern React with hooks, React Query, TypeScript
+4. **Vue Patterns** - Vue 3 Composition API, Pinia, Vue Query
+5. **Next.js Patterns** - Full-stack React with SSR/SSG
+6. **State Management** - Redux, Zustand, Pinia, NgRx patterns
+
+### Backend Skills
+7. **Node.js Patterns** - Express/Node.js APIs with TypeScript
+8. **Python Patterns** - FastAPI with async/await and Pydantic
+9. **Go Patterns** - High-performance Go with Gin/GORM
+10. **Database Patterns** - PostgreSQL, InfluxDB, MongoDB, Redis
+
+### IoT Skills
+11. **MQTT Patterns** - IoT device communication and messaging
+12. **Kafka Patterns** - Stream processing and event-driven architecture
+13. **InfluxDB Patterns** - Time-series data storage and Flux queries
+14. **IoT Architecture** - Complete IoT system design patterns
 
 ### BuildLoop Reference
-This library is inspired by **BuildLoop's AI-SDLC approach** and extends it for the complete DeJoule product ecosystem.
+This library is inspired by **BuildLoop's AI-SDLC approach** and extends it for comprehensive software development across all technology domains.
 
 ---
 
@@ -129,11 +142,11 @@ Skills: tdd-workflow, testing-strategies, e2e-testing, performance-testing, secu
 
 ## 📋 Installation
 
-### For DeJoule Team Members
+### Quick Install
 
 ```bash
 # Clone to Claude skills directory
-git clone https://github.com/itsatif/jouletrack-skills.git ~/.claude/skills/
+git clone https://github.com/itsatif/ai-sdlc-skills.git ~/.claude/skills/
 
 # Skills are immediately available in Claude Code
 ```
@@ -142,10 +155,10 @@ git clone https://github.com/itsatif/jouletrack-skills.git ~/.claude/skills/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/itsatif/jouletrack-skills.git ~/dejoule-skills
+git clone https://github.com/itsatif/ai-sdlc-skills.git ~/ai-sdlc-skills
 
 # 2. Copy to Claude skills
-cp -r ~/dejoule-skills/* ~/.claude/skills/
+cp -r ~/ai-sdlc-skills/* ~/.claude/skills/
 
 # 3. Restart Claude Code
 # Skills are now active
@@ -198,7 +211,7 @@ Follow complete AI-SDLC workflow."
 
 ### Skill Organization
 ```
-dejoule-skills/
+ai-sdlc-skills/
 ├── README.md                      # This file
 ├── 00-core/                       # Core skills (always loaded)
 │   ├── product-development/
@@ -206,7 +219,7 @@ dejoule-skills/
 │   └── quality-standards/
 ├── 01-frontend/                   # Frontend skills
 │   ├── angular/
-│   │   └── jouletrack-angular/   # Current JouleTRACK skills
+│   │   └── angular-patterns/      # Angular development patterns
 │   ├── react/                     # Coming soon
 │   ├── vue/                       # Coming soon
 │   └── nextjs/                    # Coming soon
@@ -347,20 +360,19 @@ origin: DeJoule
 
 ## 🔗 Links
 
-- **Repository:** [GitHub Repository](https://github.com/itsatif/jouletrack-skills)
-- **Organization:** [Smart Joules](https://smartjoules.org/)
-- **Documentation:** [DeJoule Docs](https://docs.smartjoules.org/)
+- **Repository:** [GitHub Repository](https://github.com/itsatif/ai-sdlc-skills)
+- **Documentation:** [Full Documentation](https://github.com/itsatif/ai-sdlc-skills/blob/main/README.md)
 
 ---
 
 ## 📜 License
 
-Copyright © 2026 DeJoule / Smart Joules. All rights reserved.
+MIT License - See LICENSE file for details.
 
-Internal use only - Not for distribution outside DeJoule.
+Free to use and modify for any purpose.
 
 ---
 
-**Remember:** This skill library enables complete AI-SDLC workflows for all DeJoule product development, ensuring consistency, quality, and speed across your entire engineering organization!
+**Remember:** This skill library enables complete AI-SDLC workflows for full-stack software development, ensuring consistency, quality, and speed across your entire engineering organization!
 
 **Next:** Check the individual skill directories to start using specific patterns for your domain.

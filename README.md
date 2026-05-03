@@ -23,30 +23,102 @@ This library enables **complete AI-SDLC workflows** - from initial product requi
 
 ## 📚 Current Skills
 
-### Core Skills
-1. **TDD Workflow** - Test-driven development with Red-Green-Refactor cycle
-2. **Angular Patterns** - Enterprise Angular development patterns
-3. **React Patterns** - Modern React with hooks, React Query, TypeScript
-4. **Vue Patterns** - Vue 3 Composition API, Pinia, Vue Query
-5. **Next.js Patterns** - Full-stack React with SSR/SSG
-6. **State Management** - Redux, Zustand, Pinia, NgRx patterns
+### 🧠 Superpowers (Mandatory First Step)
+1. **AI Superpowers - Brainstorming & Planning** - **ACTIVATES AUTOMATICALLY** for all user requests
+   - Comprehensive question generation before any planning
+   - Structured planning framework with 7 phases
+   - Interactive brainstorming with multiple techniques
+   - Mandatory execution protocol for all tasks
+   - **This is the entry point for all AI-assisted work**
+
+### Core Development Skills
+2. **TDD Workflow** - Test-driven development with Red-Green-Refactor cycle
+3. **Angular Patterns** - Enterprise Angular development patterns
+4. **React Patterns** - Modern React with hooks, React Query, TypeScript
+5. **Vue Patterns** - Vue 3 Composition API, Pinia, Vue Query
+6. **Next.js Patterns** - Full-stack React with SSR/SSG
+7. **State Management** - Redux, Zustand, Pinia, NgRx patterns
 
 ### Backend Skills
-7. **Node.js Patterns** - Express/Node.js APIs with TypeScript
-8. **Python Patterns** - FastAPI with async/await and Pydantic
-9. **Go Patterns** - High-performance Go with Gin/GORM
-10. **Database Patterns** - PostgreSQL, InfluxDB, MongoDB, Redis
+8. **Node.js Patterns** - Express/Node.js APIs with TypeScript
+9. **Python Patterns** - FastAPI with async/await and Pydantic
+10. **Go Patterns** - High-performance Go with Gin/GORM
+11. **Database Patterns** - PostgreSQL, InfluxDB, MongoDB, Redis
 
 ### IoT Skills
-11. **MQTT Patterns** - IoT device communication and messaging
-12. **Kafka Patterns** - Stream processing and event-driven architecture
-13. **InfluxDB Patterns** - Time-series data storage and Flux queries
-14. **IoT Architecture** - Complete IoT system design patterns
+12. **MQTT Patterns** - IoT device communication and messaging
+13. **Kafka Patterns** - Stream processing and event-driven architecture
+14. **InfluxDB Patterns** - Time-series data storage and Flux queries
+15. **IoT Architecture** - Complete IoT system design patterns
 
 ### BuildLoop Reference
 This library is inspired by **BuildLoop's AI-SDLC approach** and extends it for comprehensive software development across all technology domains.
 
 ---
+
+## 🚀 How It Works - The AI-SDLC Workflow
+
+### Step 1: 🧠 Activate Superpowers (Automatic)
+When you ask any question or request any feature:
+1. AI automatically activates brainstorming skill
+2. Asks clarifying questions to understand requirements
+3. Generates multiple approaches for your consideration
+4. You select the best approach
+5. Creates detailed implementation plan
+
+### Step 2: 🛠️ Select Appropriate Skills
+AI selects relevant technical skills based on:
+- Tech stack (Angular, React, Node.js, Python, Go, etc.)
+- Domain (Frontend, Backend, IoT, Database)
+- Requirements from brainstorming phase
+
+### Step 3: 📋 Follow Best Practices
+Selected skill ensures:
+- Consistent code patterns
+- Proper documentation
+- Error handling
+- Testing (TDD)
+- Security considerations
+
+### Step 4: ✅ Quality Assurance
+Before completion, AI verifies:
+- All requirements met
+- Code follows patterns
+- Tests written (80%+ coverage)
+- Documentation complete
+- Best practices followed
+
+### Example Workflow
+
+```bash
+You: "Add user authentication to my Angular app"
+
+AI: "Let me understand your authentication needs:
+      1. What authentication methods? (Email/password, OAuth, SAML?)
+      2. Any social logins needed? (Google, GitHub?)
+      3. Role-based permissions required?
+      4. Any compliance requirements? (GDPR, HIPAA?)
+      5. Session management preferences?"
+
+You: "Email/password with JWT, role-based access, needs to work with our existing Node.js API"
+
+AI: "Perfect! I see 3 approaches:
+      Option 1: Angular + JWT interceptors (Simple, fast)
+      Option 2: Angular + Auth0 library (Feature-rich, managed)
+      Option 3: Custom auth service (Maximum control, more work)
+
+      Which approach interests you?"
+
+You: "Option 1 - keep it simple and fast"
+
+AI: "Great! Here's the implementation plan:
+      Phase 1: Auth Service (login, logout, token refresh)
+      Phase 2: Route Guards (protected routes)
+      Phase 3: JWT Interceptor (attach tokens to API calls)
+      Phase 4: Role-based directives (UI access control)
+
+      Ready to start with Phase 1?"
+```
 
 ## 🚀 AI-SDLC Workflow
 

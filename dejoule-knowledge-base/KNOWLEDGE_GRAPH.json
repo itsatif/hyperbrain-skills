@@ -1,0 +1,359 @@
+{
+  "organization": {
+    "name": "DeJoule / Smart Joules",
+    "domain": "HVAC Optimization & IoT",
+    "founded": "2016",
+    "mission": "Reduce HVAC energy consumption through IoT and ML"
+  },
+  "products": [
+    {
+      "id": "jouletrack",
+      "name": "JouleTRACK",
+      "type": "Web Application",
+      "purpose": "Real-time monitoring and control dashboard",
+      "tech_stack": ["Angular 15", "TypeScript", "PrimeNG", "Apache ECharts", "NgRx"],
+      "repository": "/JouleTRACK",
+      "stats": {
+        "files": 596,
+        "classes": 645,
+        "loc": "~150,000"
+      }
+    },
+    {
+      "id": "jt-api-v2",
+      "name": "jt-api-v2",
+      "type": "Backend API",
+      "purpose": "REST API serving frontend and mobile apps",
+      "tech_stack": ["Node.js", "Express.js", "TypeScript"],
+      "repository": "/jt-api-v2",
+      "stats": {
+        "files": 250,
+        "classes": 79,
+        "endpoints": 50
+      }
+    },
+    {
+      "id": "cpa",
+      "name": "Chiller Plant Automation",
+      "type": "Optimization Engine",
+      "purpose": "Automated HVAC optimization using ML",
+      "tech_stack": ["Python", "scikit-learn", "NumPy"],
+      "repository": "/chiller-plant-automation"
+    },
+    {
+      "id": "iot-application",
+      "name": "IoT Application",
+      "type": "Data Ingestion",
+      "purpose": "MQTT to InfluxDB bridge",
+      "tech_stack": ["Node.js", "MQTT.js", "InfluxDB Client"],
+      "repository": "/iot-application"
+    }
+  ],
+  "architecture": {
+    "layers": [
+      {
+        "name": "Presentation",
+        "components": ["JouleTRACK (Angular UI)", "Mobile Apps"],
+        "protocols": ["HTTPS", "WebSocket"]
+      },
+      {
+        "name": "Application",
+        "components": ["jt-api-v2 (Express API)", "Auth Service"],
+        "protocols": ["REST", "GraphQL"]
+      },
+      {
+        "name": "Business Logic",
+        "components": ["CPA (Optimization)", "Recipe Engine", "Alert Engine"],
+        "algorithms": ["Linear Programming", "ML Models (CPC)"]
+      },
+      {
+        "name": "Data",
+        "components": ["PostgreSQL", "InfluxDB", "Redis", "MongoDB"],
+        "data_types": ["Metadata", "Time-Series", "Cache", "Documents"]
+      },
+      {
+        "name": "Integration",
+        "components": ["MQTT Broker", "Kafka Stream"],
+        "protocols": ["MQTT", "Kafka Protocol"]
+      },
+      {
+        "name": "Edge/Physical",
+        "components": ["Controllers", "Sensors", "HVAC Equipment"],
+        "protocols": ["BACnet", "Modbus"]
+      }
+    ],
+    "data_flow": [
+      {
+        "flow": "Sensor Data → Frontend",
+        "steps": [
+          "HVAC Equipment → Controller (BACnet/Modbus)",
+          "Controller → MQTT Broker (telemetry)",
+          "MQTT → iot-application",
+          "iot-application → InfluxDB (device_component/autogen)",
+          "InfluxDB → jt-api-v2 (Flux query)",
+          "jt-api-v2 → JouleTRACK (HTTP/JSON)",
+          "JouleTRACK → Apache ECharts (visualization)"
+        ]
+      },
+      {
+        "flow": "Command → Equipment",
+        "steps": [
+          "JouleTRACK → jt-api-v2 (HTTP POST)",
+          "jt-api-v2 → MQTT Broker (command)",
+          "MQTT → Controller (subscription)",
+          "Controller → HVAC Equipment (BACnet write)",
+          "Equipment → Controller (acknowledgment)",
+          "Controller → MQTT (command_feedback)",
+          "MQTT → iot-application → InfluxDB (feedback)"
+        ]
+      },
+      {
+        "flow": "Optimization Loop",
+        "steps": [
+          "CPA reads current state (InfluxDB: asset_state)",
+          "CPA queries CPC ML models (predictions)",
+          "CPA runs optimization algorithm",
+          "CPA publishes setpoints (MQTT: command)",
+          "Equipment responds to setpoints",
+          "New sensor data → InfluxDB",
+          "Loop repeats (every cycle)"
+        ]
+      }
+    ]
+  },
+  "databases": {
+    "postgresql": {
+      "purpose": "Metadata storage",
+      "tables": {
+        "sites": "Site information (id, name, location, timezone)",
+        "components": "HVAC components (chillers, AHUs, pumps, CTs)",
+        "devices": "Device registry",
+        "controllers": "BMS controller mapping",
+        "users": "User accounts and authentication",
+        "recipes": "Optimization recipe definitions",
+        "permissions": "Role-based access control"
+      },
+      "connections_from": ["jt-api-v2", "site-onboarding-migration"],
+      "connections_to": ["jt-api-v2", "JouleTRACK"]
+    },
+    "influxdb": {
+      "purpose": "Time-series telemetry",
+      "buckets": {
+        "device_component/autogen": "Raw sensor data (high frequency)",
+        "cpa_logs_30_days": "Optimization logs (30-day retention)",
+        "iot-metrics": "Application performance metrics",
+        "asset_state": "Current asset state (readings)",
+        "asset_optimize": "Optimization decisions",
+        "command_feedback": "Command execution status"
+      },
+      "measurements": {
+        "components": "Component telemetry",
+        "asset_state": "Asset current readings",
+        "asset_optimize": "Optimization actions",
+        "command_feedback": "Command results"
+      },
+      "connections_from": ["iot-application", "CPA", "component-null-data-ingestor"],
+      "connections_to": ["jt-api-v2", "CPA", "JouleTRACK"]
+    },
+    "redis": {
+      "purpose": "Caching and sessions",
+      "data_types": {
+        "sessions": "JWT token validation",
+        "api_cache": "Frequently accessed data",
+        "rate_limits": "API rate limiting",
+        "command_queue": "Pending commands"
+      },
+      "connections_from": ["jt-api-v2"],
+      "connections_to": ["jt-api-v2"]
+    },
+    "mongodb": {
+      "purpose": "Document storage (legacy)",
+      "collections": {
+        "alerts": "Alert history",
+        "audit_logs": "Action audit trail",
+        "configurations": "System configuration"
+      },
+      "connections_from": ["jt-api-v2"],
+      "connections_to": ["jt-api-v2"]
+    }
+  },
+  "mqtt_topics": {
+    "telemetry": "data/{siteId}/{controllerId}/{componentId}",
+    "commands": "command/{siteId}/{controllerId}/{componentId}",
+    "feedback": "command_feedback/{siteId}/{controllerId}",
+    "alerts": "alerts/{siteId}",
+    "state": "state/{siteId}/{controllerId}",
+    "logs": "logs/{siteId}/{service}",
+    "triggers": "trigger/{siteId}/{recipeId}"
+  },
+  "api_endpoints": {
+    "authentication": [
+      "POST /api/auth/login",
+      "POST /api/auth/logout",
+      "GET /api/auth/validate"
+    ],
+    "dashboard": [
+      "GET /api/dashboard/:siteId/consumption",
+      "GET /api/dashboard/:siteId/efficiency",
+      "GET /api/dashboard/:siteId/alarms",
+      "GET /api/dashboard/:siteId/trends"
+    ],
+    "devices": [
+      "GET /api/sites/:siteId/devices",
+      "GET /api/devices/:deviceId",
+      "POST /api/devices/:deviceId/command",
+      "GET /api/devices/:deviceId/telemetry"
+    ],
+    "recipes": [
+      "GET /api/sites/:siteId/recipes",
+      "POST /api/recipes/:recipeId/execute",
+      "GET /api/recipes/:recipeId/status"
+    ]
+  },
+  "frontend_patterns": {
+    "component_architecture": "Container/Presenter pattern",
+    "state_management": "NgRx store + RxJS observables",
+    "data_pipeline": "DTO → Domain → ViewModel (transformer chain)",
+    "change_detection": "OnPush (explicit)",
+    "charts": "Apache ECharts with Builder pattern",
+    "http_client": "HttpClient with Observables (no Promises)",
+    "forms": "ReactiveForms + FormGroup",
+    "styling": "SCSS + CSS Grid/Flexbox"
+  },
+  "backend_patterns": {
+    "architecture": "Layered (Controller → Service → Repository)",
+    "validation": "Joi schemas on all endpoints",
+    "authentication": "JWT (Redis-backed sessions)",
+    "error_handling": "Explicit error classes + proper HTTP codes",
+    "databases": "Repository pattern + query builders",
+    "caching": "Redis for frequent queries",
+    "logging": "Winston + structured logs",
+    "testing": "Jest + Supertest"
+  },
+  "coding_standards": {
+    "typescript": {
+      "strict_mode": true,
+      "no_any": true,
+      "explicit_types": true,
+      "readonly_properties": "non-reassignable",
+      "private_public": "explicit modifiers"
+    },
+    "rxjs": {
+      "use_observables": "always (no Promises)",
+      "cleanup": "takeUntil(destroy$) or async pipe",
+      "caching": "shareReplay(1) for shared streams",
+      "error_handling": "catchError with proper fallbacks"
+    },
+    "angular": {
+      "change_detection": "OnPush always",
+      "lifecycle": "OnInit, OnDestroy (cleanup)",
+      "input_output": "Explicit types",
+      "onpush": "Always use ChangeDetectionStrategy.OnPush"
+    }
+  },
+  "testing_standards": {
+    "frontend": {
+      "framework": "Jasmine + Karma",
+      "coverage_target": "80%",
+      "test_location": "Co-located (*.spec.ts)",
+      "component_tests": "TestBed with mocked services",
+      "observable_tests": "fakeAsync + tick()"
+    },
+    "backend": {
+      "framework": "Jest + Supertest",
+      "coverage_target": "80%",
+      "integration_tests": "Test database (docker-compose)",
+      "api_tests": "Supertest requests",
+      "unit_tests": "Jest with mocked dependencies"
+    }
+  },
+  "deployment": {
+    "development": {
+      "strategy": "Docker Compose",
+      "services": ["JouleTRACK", "jt-api-v2", "PostgreSQL", "InfluxDB", "Redis", "MQTT"]
+    },
+    "staging": {
+      "strategy": "Kubernetes (single node)",
+      "replicas": 1,
+      "environment": "Shared staging cluster"
+    },
+    "production": {
+      "strategy": "Kubernetes (multi-node)",
+      "replicas": 3,
+      "autoscaling": "HPA based on CPU",
+      "database": "Managed PostgreSQL, InfluxDB Enterprise"
+    },
+    "edge": {
+      "strategy": "Docker Compose on customer premise",
+      "network": "Isolated VLAN",
+      "monitoring": "VPN to central monitoring"
+    }
+  },
+  "monitoring": {
+    "metrics": ["Prometheus"],
+    "logs": ["ELK Stack (Elasticsearch, Logstash, Kibana)"],
+    "traces": ["Jaeger distributed tracing"],
+    "alerts": ["Grafana dashboards + AlertManager"],
+    "uptime": ["UptimeMonitor + PagerDuty"]
+  },
+  "security": {
+    "authentication": "JWT with Redis session store",
+    "authorization": "Role-based (Admin, Operator, Viewer, Service)",
+    "encryption": "TLS 1.3 for all connections",
+    "secrets": "HashiCorp Vault (production)",
+    "auditing": "All actions logged to MongoDB",
+    "compliance": ["GDPR", "SOC 2 Type II"]
+  },
+  "team_structure": {
+    "frontend_team": {
+      "lead": "@itsatif",
+      "size": "3-5 developers",
+      "responsibilities": ["JouleTRACK", "Mobile Apps", "UI/UX"]
+    },
+    "backend_team": {
+      "size": "2-3 developers",
+      "responsibilities": ["jt-api-v2", "Auth Service", "API Design"]
+    },
+    "iot_team": {
+      "size": "2-3 developers",
+      "responsibilities": ["iot-application", "CPA", "Edge firmware"]
+    },
+    "devops_team": {
+      "size": "1-2 engineers",
+      "responsibilities": ["Kubernetes", "CI/CD", "Monitoring", "Infrastructure"]
+    },
+    "qa_team": {
+      "size": "2-3 QA engineers",
+      "responsibilities": ["Manual testing", "E2E tests", "QA automation"]
+    }
+  },
+  "development_workflow": {
+    "branching": "Git Flow (feature/develop/hotfix)",
+    "code_review": "Required (2 approvals minimum)",
+    "ci": "GitHub Actions (build, test, lint)",
+    "cd": "Automatic on merge to main",
+    "testing": "TDD encouraged (write tests first)",
+    "documentation": "Required for all public APIs"
+  },
+  "key_concepts": {
+    "site": "Physical location (building, factory, data center)",
+    "component": "HVAC equipment (chiller, AHU, pump, cooling tower)",
+    "controller": "BMS controller managing components",
+    "recipe": "Optimization sequence (pre-defined set of actions)",
+    "cpc": "Cooling Prediction Company (ML models for HVAC)",
+    "sec": "Specific Energy Consumption (kWh/TR - efficiency metric)",
+    "cop": "Coefficient of Performance (efficiency ratio)",
+    "setpoint": "Target value for controller (temperature, flow, etc.)"
+  },
+  "glossary": {
+    "AHU": "Air Handling Unit",
+    "BACnet": "Building Automation and Control Networks protocol",
+    "COP": "Coefficient of Performance",
+    "CPA": "Chiller Plant Automation",
+    "CPC": "Cooling Prediction Company (ML models)",
+    "CT": "Cooling Tower",
+    "HVAC": "Heating, Ventilation, and Air Conditioning",
+    "SEC": "Specific Energy Consumption",
+    "TR": "Ton of Refrigeration (cooling capacity unit)"
+  }
+}

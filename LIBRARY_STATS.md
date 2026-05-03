@@ -8,12 +8,12 @@
 ## 📊 Library Statistics
 
 ### Content Volume
-- **Total Skills:** 22 technical skills
-- **Total Documentation:** 42 markdown files
-- **Total Words (SKILL.md):** 49,473 words
-- **Total Words (README.md):** 6,576 words
-- **Total Documentation:** ~56,000 words
-- **Repository Size:** 1.6 MB
+- **Total Skills:** 23 technical skills
+- **Total Documentation:** 44 markdown files
+- **Total Words (SKILL.md):** 51,500+ words
+- **Total Words (README.md):** 7,000+ words
+- **Total Documentation:** ~58,500+ words
+- **Repository Size:** 1.8 MB
 
 ### Knowledge Bases
 | Knowledge Base | Words | Coverage |
@@ -60,7 +60,7 @@ hyperbrain-skills/
 │   ├── JOULETRACK_SKILLS_UPDATED.md
 │   └── LIBRARY_STATS.md
 │
-├── Skills (22 total, 49,473 words)
+├── Skills (23 total, 51,500+ words)
 │   ├── superpowers-brainstorm/ (mandatory first step)
 │   ├── expert-personas/ (7 personas)
 │   ├── ui-ux-design/ (3 mandatory rules)
@@ -86,7 +86,8 @@ hyperbrain-skills/
 │   ├── influxdb-patterns/ (InfluxDB patterns)
 │   ├── iot-architecture/ (IoT architecture)
 │   ├── jouletrack-onboarding/ (onboarding)
-│   └── jouletrack-library/ (component library)
+│   ├── jouletrack-library/ (component library)
+│   └── graphify-integration/ (NEW: AST knowledge graph creation)
 │
 ├── MCP Configuration
 │   ├── mcp-setup/ (3 always-on MCPs)
@@ -150,6 +151,7 @@ hyperbrain-skills/
 | Brainstorming | superpowers-brainstorm | ✅ Complete |
 | Expert Personas | expert-personas | ✅ Complete (7 personas) |
 | Self-Learning | self-learning | ✅ Complete |
+| Knowledge Extraction | graphify-integration | ✅ Complete (NEW!) |
 
 ---
 

@@ -26,7 +26,7 @@ A comprehensive, production-ready skills library for AI-assisted Software Develo
 
 **Total Knowledge:** 48,803 words of organizational context
 
-### Technical Skills (15 Skills)
+### Technical Skills (16 Skills)
 
 #### Frontend Development
 - **jouletrack-angular** - Angular Container/Presenter pattern
@@ -52,6 +52,9 @@ A comprehensive, production-ready skills library for AI-assisted Software Develo
 - **superpowers-brainstorm** - AI-powered planning
 - **playwright-patterns** - E2E testing
 - **qa-automation** - AI-powered test generation
+
+#### Knowledge Extraction
+- **graphify-integration** - AST-based knowledge graph creation (NEW!)
 
 ---
 
@@ -348,11 +351,19 @@ AI: "Here's the fix following jt-api-v2 patterns:
 ## 📈 Statistics
 
 ### Documentation Metrics
-- **Total Words:** 48,803 words
-- **Total Files:** 62 files
-- **Knowledge Graphs:** 4 JSON files
+- **Total Words:** 56,000+ words
+- **Total Skills:** 22 technical skills
+- **Total Documentation:** 42 markdown files
+- **Knowledge Graphs:** Auto-generated via Graphify
 - **Test Templates:** 15+ templates
 - **Patterns Documented:** 30+ patterns
+
+### New: Graphify Integration
+- **AST-based Extraction:** 25+ programming languages supported
+- **Token Efficiency:** 71.5x reduction vs raw files
+- **Multi-Modal:** Code, docs, PDFs, images, video/audio
+- **Interactive Outputs:** HTML, JSON, Markdown reports
+- **MCP Server:** Expose knowledge graphs for live querying
 
 ### Code Examples
 - **Angular:** Container/Presenter pattern

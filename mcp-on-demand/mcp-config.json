@@ -1,0 +1,184 @@
+{
+  "mcpServers": {
+    "morpheus": {
+      "url": "https://cody.smartjoules.org/sse",
+      "type": "http",
+      "disabled": false,
+      "required": false,
+      "description": "DeJoule AI Assistant - HTTP MCP Server for knowledge graphs and codebase search",
+      "autoApprove": [
+        "mcp__morpheus__*",
+        "query_graph",
+        "search_codebase",
+        "read_file",
+        "get_architecture",
+        "influx_schema",
+        "code_search",
+        "code_read"
+      ],
+      "capabilities": {
+        "query_graph": "Query knowledge graphs (dejoule, jt-api-v2, iot-platform)",
+        "search_codebase": "Search codebase for patterns and implementations",
+        "read_file": "Read files with context and line numbers",
+        "get_architecture": "Get service architecture overview",
+        "influx_schema": "Retrieve InfluxDB measurement schema",
+        "code_search": "Search for specific code patterns"
+      },
+      "examples": [
+        "Use Morpheus to query the backend knowledge graph",
+        "Search codebase for Container pattern implementation",
+        "Get architecture of iot-application service"
+      ]
+    },
+    "data-proxy": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://10.40.21.254:8100/sse",
+        "--allow-http"
+      ],
+      "disabled": false,
+      "description": "Local SSE proxy for data services - PostgreSQL, InfluxDB, Redis",
+      "autoApprove": [
+        "execute_postgresql_query",
+        "execute_influxdb_query",
+        "execute_redis_command",
+        "check_database_health"
+      ],
+      "capabilities": {
+        "execute_postgresql_query": "Execute PostgreSQL queries (devices, sites, users)",
+        "execute_influxdb_query": "Execute Flux queries for time-series telemetry data",
+        "execute_redis_command": "Execute Redis commands (cache operations)",
+        "check_database_health": "Check database connection status"
+      },
+      "databases": {
+        "postgresql": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "dejoule",
+          "useCases": ["Device information", "User accounts", "Site configuration"]
+        },
+        "influxdb": {
+          "host": "localhost",
+          "port": 8086,
+          "organization": "dejoule",
+          "bucket": "device_component",
+          "useCases": ["Telemetry data", "Device metrics", "Energy consumption"]
+        },
+        "redis": {
+          "host": "localhost",
+          "port": 6379,
+          "useCases": ["API response cache", "Session data", "Real-time state"]
+        }
+      },
+      "examples": [
+        "Use data-proxy to get all devices for site iah-del",
+        "Query InfluxDB for last 24 hours of SEC data",
+        "Check Redis cache for dashboard data"
+      ]
+    },
+    "figma-console": {
+      "command": "npx",
+      "args": [
+        "figma-console-mcp"
+      ],
+      "disabled": false,
+      "description": "Figma design integration - Access designs, components, and design tokens",
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "YOUR_FIGMA_TOKEN_HERE",
+        "ENABLE_MCP_APPS": "true"
+      },
+      "autoApprove": [
+        "figma_get_status",
+        "figma_get_file_data",
+        "figma_get_component_for_development",
+        "figma_get_component_image",
+        "figma_take_screenshot",
+        "figma_get_design_context",
+        "figma_get_figjam"
+      ],
+      "capabilities": {
+        "figma_get_file_data": "Get Figma file data and structure",
+        "figma_get_component_for_development": "Get component specs for development",
+        "figma_take_screenshot": "Take screenshot of Figma design",
+        "figma_get_design_context": "Get design context and tokens",
+        "figma_get_design_system": "Get design system information"
+      },
+      "examples": [
+        "Use Figma to get the dashboard design file",
+        "Get primary button component for development",
+        "Take screenshot of the analytics page"
+      ]
+    },
+    "sentinel": {
+      "command": "node",
+      "args": [
+        "/Users/atif-salafi/Desktop/workspace/mcp-servers/sentry-server.js"
+      ],
+      "disabled": false,
+      "description": "Sentry error tracking and monitoring integration",
+      "env": {
+        "SENTRY_DSN": "https://5f4f89504d124cab98a32a24ce659d12@sentry.smartjoules.org/5",
+        "SENTRY_AUTH_TOKEN": "YOUR_SENTRY_TOKEN_HERE",
+        "SENTRY_ORG": "smartjoules",
+        "SENTRY_PROJECT": "5",
+        "SENTRY_ENDPOINT": "https://sentry.smartjoules.org"
+      },
+      "capabilities": {
+        "check_system_health": "Check health of all services",
+        "get_error_rates": "Get error rates by service",
+        "get_performance_metrics": "Get performance metrics",
+        "get_uptime_stats": "Get uptime statistics"
+      },
+      "examples": [
+        "Use Sentinel to check system health",
+        "Get error rates for jt-api-v2 service",
+        "Show performance metrics for iot-application"
+      ]
+    }
+  },
+  "activation": {
+    "mode": "on-demand",
+    "description": "MCP servers activate ONLY when explicitly requested via trigger keywords",
+    "triggers": {
+      "morpheus": ["Use Morpheus", "Query knowledge graph", "Search codebase", "Get architecture"],
+      "data-proxy": ["Use data-proxy", "Query database", "Execute SQL", "Get device data"],
+      "figma-console": ["Use Figma", "Get Figma design", "Figma component"],
+      "sentinel": ["Use Sentinel", "Check health", "System status"]
+    }
+  },
+  "security": {
+    "authentication": "required",
+    "authorization": "enforced",
+    "logging": "enabled",
+    "rateLimiting": "enabled",
+    "network": {
+      "morpheus": "public_https",
+      "data-proxy": "internal_vpn_required",
+      "figma-console": "public_https",
+      "sentinel": "public_https"
+    }
+  },
+  "performance": {
+    "connectionPooling": {
+      "enabled": true,
+      "morpheus": {
+        "minConnections": 1,
+        "maxConnections": 5,
+        "connectionTimeout": 5000
+      },
+      "data-proxy": {
+        "minConnections": 2,
+        "maxConnections": 10,
+        "connectionTimeout": 3000
+      }
+    },
+    "queryOptimization": {
+      "cacheResults": true,
+      "cacheDuration": 300000,
+      "maxResults": 1000,
+      "timeout": 10000
+    }
+  }
+}

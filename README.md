@@ -72,6 +72,19 @@ This library enables **complete AI-SDLC workflows** - from initial product requi
 14. **InfluxDB Patterns** - Time-series data storage and Flux queries
 15. **IoT Architecture** - Complete IoT system design patterns
 
+### QA & Testing Skills
+16. **Playwright Patterns** - E2E testing with Page Object Model
+17. **QA Automation** - AI-powered test generation from knowledge bases
+
+### MCP Integration Skills
+18. **MCP Setup** - Configure MCP servers (Notion, Figma, GitHub, Slack, databases)
+
+### Knowledge Bases
+- **DeJoule Organizational KB** (18,773 words) - Complete ecosystem knowledge
+- **Backend KB - jt-api-v2** (12,456 words) - API microservice architecture
+- **IoT Platform KB** (15,234 words) - MQTT, InfluxDB, device integration
+- **QA Automation KB** (2,340 words) - Test generation and automation
+
 ### BuildLoop Reference
 This library is inspired by **BuildLoop's AI-SDLC approach** and extends it for comprehensive software development across all technology domains.
 
@@ -338,6 +351,38 @@ ai-sdlc-skills/
     ├── kubernetes/               # Coming soon
     └── monitoring/                # Coming soon
 ```
+
+---
+
+## 🔌 MCP Server Setup
+
+Enable AI assistants to access external services (Notion, Figma, GitHub, Slack, databases):
+
+```bash
+# Navigate to MCP setup directory
+cd ai-sdlc-skills/mcp-setup
+
+# Run automated setup
+./setup-mcp.sh
+
+# This will:
+# - Create ~/.claude/.env for secure token storage
+# - Prompt you for API tokens
+# - Install MCP servers globally
+# - Update Claude settings with MCP configurations
+# - Set proper file permissions (600)
+```
+
+**Supported MCP Servers:**
+- 📝 **Notion** - Document management, PRDs, wikis
+- 🎨 **Figma** - Design system collaboration
+- 🐙 **GitHub** - Repository management, PRs, issues
+- 💬 **Slack** - Team communication, notifications
+- 🗄️ **PostgreSQL** - Relational database queries
+- 🍃 **MongoDB** - NoSQL document operations
+- ⚡ **Redis** - Key-value cache operations
+
+**For detailed MCP setup instructions, see [mcp-setup/README.md](mcp-setup/README.md)**
 
 ---
 

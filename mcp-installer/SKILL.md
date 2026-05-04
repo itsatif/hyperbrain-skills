@@ -109,40 +109,104 @@ hyperbrain-skills/
 
 ## 💡 Usage Examples
 
-### Example 1: Install All MCPs
+### Example 1: Install All MCPs (Interactive)
 
 ```bash
 # Navigate to HyperBrain skills
 cd ~/.claude/skills/hyperbrain-skills
 
-# Install everything
+# Install everything (interactive mode)
 /mcp-installer install
 
 # Output:
+# ╔════════════════════════════════════════════════════════════╗
+# ║           MCP Installer - HyperBrain Skills              ║
+# ║     Automated MCP Server Setup for Claude Code           ║
+# ╚════════════════════════════════════════════════════════════╝
+#
 # 🔍 Discovering MCP configurations...
 # ✅ Found 7 MCP servers
-# 📦 Installing dependencies...
-# ✅ Notion MCP: Installed
-# ✅ GitHub MCP: Installed
-# ✅ Slack MCP: Installed
-# ✅ Morpheus MCP: Installed
-# ✅ Data Proxy MCP: Installed
-# ✅ Figma Console MCP: Installed
-# ✅ Sentinel MCP: Installed
-# 🔧 Configuring Claude...
-# ✅ Configuration updated
-# 🧪 Testing connections...
-# ✅ All MCP servers verified
 #
-# 🎉 Installation complete!
-# 📝 Next steps:
-#   1. Restart Claude Code
-#   2. Set environment variables:
-#      - NOTION_API_KEY
-#      - GITHUB_TOKEN
-#      - SLACK_TOKEN
-#      - FIGMA_ACCESS_TOKEN
-#      - SENTRY_DSN
+# ═════════════════════════════════════════════════════════════
+# 📦 Found MCP: notion
+# ═════════════════════════════════════════════════════════════
+#
+# Description:   Notion documentation integration
+# Type:          http
+# Required:      true
+# Category:      always-on
+#
+# 📋 This MCP requires:
+#   • NOTION_API_KEY (required)
+#   • Notion integration token from https://www.notion.so/my-integrations
+#
+# ⚠️  This is an always-on MCP and will start automatically with Claude Code.
+#
+# Install and configure notion? [Y/n]: Y
+#
+# ═════════════════════════════════════════════════════════════
+# 🔧 Configuring: notion
+# ═════════════════════════════════════════════════════════════
+#
+# Description: Notion documentation integration
+# Type: http
+#
+# ✅ Existing configuration found:
+#    NOTION_API_KEY=****
+# Use existing configuration? [Y/n]: n
+#
+# Required for Notion MCP:
+# 1. NOTION_API_KEY - Notion integration token
+# 2. NOTION_DATABASE_ID (optional) - Default database ID
+#
+# Get your token: https://www.notion.so/my-integrations
+#
+# Enter NOTION_API_KEY (or press Enter to skip): [your-token-here]
+# ✅ NOTION_API_KEY configured
+#
+# Enter NOTION_DATABASE_ID (optional, press Enter to skip):
+#
+# ✅ Configuration complete for notion
+#
+# ... (continues for each MCP)
+#
+# 📦 Installing npm-based MCP packages...
+# ✅ @modelcontextprotocol/server-notion installed
+# ✅ @modelcontextprotocol/server-github installed
+# ✅ @modelcontextprotocol/server-slack installed
+#
+# 🔧 Updating Claude settings...
+# ✅ Claude settings updated
+#
+# 📝 Creating environment file...
+# ✅ Environment file created: .env.mcp
+# ✅ Environment example created: .env.mcp.example
+#
+# ℹ️  Next steps:
+#
+# 1. Load environment variables:
+#    source .env.mcp
+#
+#    Or add to your shell profile (~/.bashrc or ~/.zshrc):
+#    echo 'source .env.mcp' >> ~/.zshrc
+#
+# 2. Restart Claude Code
+#
+# 3. Test MCP servers:
+#    ./mcp-installer/bin/install-mcps.sh test
+#
+# 4. Use MCPs in conversations:
+#    - Use Morpheus to query knowledge graphs
+#    - Use data-proxy to query databases
+#    - Get Figma designs
+#    - Check system health with Sentinel
+#
+# ✅ Configured with 3 environment variable(s):
+#    - NOTION_API_KEY
+#    - GITHUB_TOKEN
+#    - SLACK_TOKEN
+#
+# ✅ Installation complete!
 ```
 
 ### Example 2: Install Specific MCPs
@@ -219,6 +283,49 @@ cd ~/.claude/skills/hyperbrain-skills
 
 ## 🔧 Configuration
 
+### Interactive Confirmation
+
+The installer will **prompt you for each MCP server** before installation:
+
+```bash
+# For each MCP, you'll see:
+════════════════════════════════════════════════════════════
+📦 Found MCP: notion
+════════════════════════════════════════════════════════════
+
+Description:   Notion documentation integration
+Type:          http
+Required:      true
+Category:      always-on
+
+📋 This MCP requires:
+  • NOTION_API_KEY (required)
+  • Notion integration token from https://www.notion.so/my-integrations
+
+Install and configure notion? [Y/n]:
+```
+
+### Providing Credentials
+
+When you confirm, you'll be asked for required credentials:
+
+```bash
+════════════════════════════════════════════════════════════
+🔧 Configuring: notion
+════════════════════════════════════════════════════════════
+
+Required for Notion MCP:
+1. NOTION_API_KEY - Notion integration token
+2. NOTION_DATABASE_ID (optional) - Default database ID
+
+Get your token: https://www.notion.so/my-integrations
+
+Enter NOTION_API_KEY (or press Enter to skip): [paste your token]
+✅ NOTION_API_KEY configured
+
+Enter NOTION_DATABASE_ID (optional, press Enter to skip):
+```
+
 ### CLI Options
 
 ```bash
@@ -231,7 +338,7 @@ Options:
   --claude-settings PATH   Custom Claude settings file path [default: ~/.claude/settings.json]
   --python-path PATH       Custom Python executable path [default: python3]
   --node-path PATH         Custom Node.js executable path [default: node]
-  --yes                    Auto-confirm all prompts
+  --yes                    Skip prompts and install all (requires pre-configured env vars)
   --dry-run                Show what would be installed without installing
   --verbose                Verbose output
   --force                  Reinstall even if already installed

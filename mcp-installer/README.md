@@ -23,17 +23,35 @@ One-command installation of all Model Context Protocol (MCP) servers from the Hy
 
 ## 🚀 Quick Start
 
-### Install All MCPs
+### Install All MCPs (Interactive)
 
 ```bash
 # Navigate to HyperBrain skills
 cd ~/.claude/skills/hyperbrain-skills
 
-# Install all MCP servers
-/mcp-installer install
+# Install all MCP servers (interactive - prompts for each MCP)
+./mcp-installer/bin/install-mcps.sh install
 
-# With auto-confirmation
-/mcp-installer install --yes
+# The installer will:
+# 1. Show each MCP with description and requirements
+# 2. Ask if you want to install it
+# 3. Prompt for required tokens/URLs
+# 4. Create .env.mcp file with your credentials
+# 5. Update Claude settings
+#
+# Example prompt:
+# 📦 Found MCP: notion
+# Description: Notion documentation integration
+# 📋 Requires: NOTION_API_KEY
+# Install and configure notion? [Y/n]: Y
+# Enter NOTION_API_KEY: [paste your token]
+```
+
+### Install with Auto-Confirmation (Skip Prompts)
+
+```bash
+# Skip all prompts (requires pre-configured environment variables)
+./mcp-installer/bin/install-mcps.sh install --yes
 ```
 
 ### Verify Installation

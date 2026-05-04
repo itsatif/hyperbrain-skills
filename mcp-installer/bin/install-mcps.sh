@@ -21,6 +21,11 @@ CLAUDE_SETTINGS="${CLAUDE_SETTINGS_PATH:-$HOME/.claude/settings.json}"
 MCP_CONFIG_DIR="$REPO_ROOT/mcp-setup"
 MCP_ONDEMAND_DIR="$REPO_ROOT/mcp-on-demand"
 BACKUP_DIR="$HOME/.claude/mcp-backups"
+ENV_FILE="$REPO_ROOT/.env.mcp"
+ENV_EXAMPLE_FILE="$REPO_ROOT/.env.mcp.example"
+
+# Associative array for MCP user configurations
+declare -A MCP_USER_CONFIGS
 
 # Functions
 log_info() { echo -e "${BLUE}ℹ️  $*${NC}"; }
@@ -90,6 +95,341 @@ backup_settings() {
   log_success "Backup created: $backup_file"
 }
 
+# Interactive configuration for each MCP
+configure_mcp_interactive() {
+  local mcp_name="$1"
+  local mcp_config="$2"
+
+  echo ""
+  echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+  echo -e "${BLUE}🔧 Configuring: ${GREEN}${mcp_name}${NC}${BLUE}"
+  echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+  echo ""
+
+  # Extract MCP details
+  local description=$(echo "$mcp_config" | jq -r '.description // "No description"')
+  local mcp_type=$(echo "$mcp_config" | jq -r '.type // "unknown"')
+  local disabled=$(echo "$mcp_config" | jq -r '.disabled // false')
+
+  echo -e "${YELLOW}Description:${NC} $description"
+  echo -e "${YELLOW}Type:${NC} $mcp_type"
+  echo ""
+
+  # Check if already configured
+  local has_existing_env=false
+  local existing_vars=""
+
+  case "$mcp_name" in
+    notion)
+      if [ -n "${NOTION_API_KEY:-}" ]; then
+        has_existing_env=true
+        existing_vars="NOTION_API_KEY=****"
+      fi
+      ;;
+    github)
+      if [ -n "${GITHUB_TOKEN:-}" ]; then
+        has_existing_env=true
+        existing_vars="GITHUB_TOKEN=****"
+      fi
+      ;;
+    slack)
+      if [ -n "${SLACK_TOKEN:-}" ]; then
+        has_existing_env=true
+        existing_vars="SLACK_TOKEN=****"
+      fi
+      ;;
+    figma-console)
+      if [ -n "${FIGMA_ACCESS_TOKEN:-}" ]; then
+        has_existing_env=true
+        existing_vars="FIGMA_ACCESS_TOKEN=****"
+      fi
+      ;;
+    sentinel)
+      if [ -n "${SENTRY_DSN:-}" ]; then
+        has_existing_env=true
+        existing_vars="SENTRY_DSN=****"
+      fi
+      ;;
+    data-proxy|morpheus)
+      # These use URLs, check config
+      local url=$(echo "$mcp_config" | jq -r '.url // .command // "Not configured"')
+      has_existing_env=true
+      existing_vars="URL/Command: $url"
+      ;;
+  esac
+
+  if [ "$has_existing_env" = true ]; then
+    echo -e "${GREEN}✅ Existing configuration found:${NC}"
+    echo "   $existing_vars"
+    echo ""
+    read -p "Use existing configuration? [Y/n] " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Nn]$ ]]; then
+      has_existing_env=false
+    else
+      log_success "Using existing configuration for $mcp_name"
+      return 0
+    fi
+  fi
+
+  # Ask for required configuration based on MCP type
+  case "$mcp_name" in
+    notion)
+      echo ""
+      echo -e "${YELLOW}Required for Notion MCP:${NC}"
+      echo "1. NOTION_API_KEY - Notion integration token"
+      echo "2. NOTION_DATABASE_ID (optional) - Default database ID"
+      echo ""
+      echo -e "${BLUE}Get your token:${NC} https://www.notion.so/my-integrations"
+      echo ""
+
+      read -p "Enter NOTION_API_KEY (or press Enter to skip): " notion_key
+      if [ -n "$notion_key" ]; then
+        MCP_USER_CONFIGS["NOTION_API_KEY"]="$notion_key"
+        log_success "NOTION_API_KEY configured"
+      else
+        log_warning "NOTION_API_KEY not provided - Notion MCP may not work"
+      fi
+
+      read -p "Enter NOTION_DATABASE_ID (optional, press Enter to skip): " notion_db
+      if [ -n "$notion_db" ]; then
+        MCP_USER_CONFIGS["NOTION_DATABASE_ID"]="$notion_db"
+      fi
+      ;;
+
+    github)
+      echo ""
+      echo -e "${YELLOW}Required for GitHub MCP:${NC}"
+      echo "1. GITHUB_TOKEN - GitHub personal access token"
+      echo ""
+      echo -e "${BLUE}Create token:${NC} https://github.com/settings/tokens"
+      echo "Required scopes: repo, read:org"
+      echo ""
+
+      read -p "Enter GITHUB_TOKEN (or press Enter to skip): " github_token
+      if [ -n "$github_token" ]; then
+        MCP_USER_CONFIGS["GITHUB_TOKEN"]="$github_token"
+        log_success "GITHUB_TOKEN configured"
+      else
+        log_warning "GITHUB_TOKEN not provided - GitHub MCP may not work"
+      fi
+      ;;
+
+    slack)
+      echo ""
+      echo -e "${YELLOW}Required for Slack MCP:${NC}"
+      echo "1. SLACK_TOKEN - Slack bot token"
+      echo "2. SLACK_SIGNING_SECRET - Slack signing secret"
+      echo ""
+      echo -e "${BLUE}Get credentials:${NC} https://api.slack.com/apps"
+      echo ""
+
+      read -p "Enter SLACK_TOKEN (or press Enter to skip): " slack_token
+      if [ -n "$slack_token" ]; then
+        MCP_USER_CONFIGS["SLACK_TOKEN"]="$slack_token"
+        log_success "SLACK_TOKEN configured"
+      else
+        log_warning "SLACK_TOKEN not provided - Slack MCP may not work"
+      fi
+
+      read -p "Enter SLACK_SIGNING_SECRET (optional, press Enter to skip): " slack_secret
+      if [ -n "$slack_secret" ]; then
+        MCP_USER_CONFIGS["SLACK_SIGNING_SECRET"]="$slack_secret"
+      fi
+      ;;
+
+    figma-console)
+      echo ""
+      echo -e "${YELLOW}Required for Figma Console MCP:${NC}"
+      echo "1. FIGMA_ACCESS_TOKEN - Figma personal access token"
+      echo ""
+      echo -e "${BLUE}Get token:${NC} https://www.figma.com/developers/api#access-tokens"
+      echo ""
+
+      read -p "Enter FIGMA_ACCESS_TOKEN (or press Enter to skip): " figma_token
+      if [ -n "$figma_token" ]; then
+        MCP_USER_CONFIGS["FIGMA_ACCESS_TOKEN"]="$figma_token"
+        log_success "FIGMA_ACCESS_TOKEN configured"
+      else
+        log_warning "FIGMA_ACCESS_TOKEN not provided - Figma MCP may not work"
+      fi
+      ;;
+
+    sentinel)
+      echo ""
+      echo -e "${YELLOW}Required for Sentinel MCP (Sentry):${NC}"
+      echo "1. SENTRY_DSN - Sentry DSN"
+      echo "2. SENTRY_AUTH_TOKEN - Sentry auth token (optional)"
+      echo "3. SENTRY_ORG - Sentry organization (optional)"
+      echo "4. SENTRY_PROJECT - Sentry project ID (optional)"
+      echo ""
+      echo -e "${BLUE}Get credentials:${NC} https://sentry.io/settings/"
+      echo ""
+
+      read -p "Enter SENTRY_DSN (or press Enter to skip): " sentry_dsn
+      if [ -n "$sentry_dsn" ]; then
+        MCP_USER_CONFIGS["SENTRY_DSN"]="$sentry_dsn"
+        log_success "SENTRY_DSN configured"
+      else
+        log_warning "SENTRY_DSN not provided - Sentinel MCP may not work"
+      fi
+
+      read -p "Enter SENTRY_AUTH_TOKEN (optional, press Enter to skip): " sentry_token
+      if [ -n "$sentry_token" ]; then
+        MCP_USER_CONFIGS["SENTRY_AUTH_TOKEN"]="$sentry_token"
+      fi
+
+      read -p "Enter SENTRY_ORG (optional, press Enter to skip): " sentry_org
+      if [ -n "$sentry_org" ]; then
+        MCP_USER_CONFIGS["SENTRY_ORG"]="$sentry_org"
+      fi
+
+      read -p "Enter SENTRY_PROJECT (optional, press Enter to skip): " sentry_project
+      if [ -n "$sentry_project" ]; then
+        MCP_USER_CONFIGS["SENTRY_PROJECT"]="$sentry_project"
+      fi
+      ;;
+
+    data-proxy)
+      local url=$(echo "$mcp_config" | jq -r '.args[1] // "http://localhost:8100/sse"')
+      echo ""
+      echo -e "${YELLOW}Data Proxy MCP Configuration:${NC}"
+      echo "This MCP connects to a local SSE proxy for database access."
+      echo "Default URL: $url"
+      echo ""
+      echo -e "${BLUE}Requirements:${NC}"
+      echo "- VPN connection (if accessing remote server)"
+      echo "- Database credentials configured in the proxy"
+      echo ""
+
+      read -p "Use default URL? [Y/n] " -n 1 -r
+      echo ""
+      if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+        MCP_USER_CONFIGS["DATA_PROXY_URL"]="$url"
+        log_success "Data Proxy URL configured: $url"
+      else
+        read -p "Enter custom Data Proxy URL: " custom_url
+        MCP_USER_CONFIGS["DATA_PROXY_URL"]="$custom_url"
+        log_success "Data Proxy URL configured: $custom_url"
+      fi
+      ;;
+
+    morpheus)
+      local url=$(echo "$mcp_config" | jq -r '.url // "https://cody.smartjoules.org/sse"')
+      echo ""
+      echo -e "${YELLOW}Morpheus MCP Configuration:${NC}"
+      echo "This MCP provides knowledge graph and codebase search capabilities."
+      echo "Server URL: $url"
+      echo ""
+      echo -e "${BLUE}Note:${NC} Morpheus typically doesn't require authentication."
+      echo "If your Morpheus instance requires authentication, please contact your administrator."
+      echo ""
+
+      read -p "Use default Morpheus configuration? [Y/n] " -n 1 -r
+      echo ""
+      if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+        MCP_USER_CONFIGS["MORPHEUS_URL"]="$url"
+        log_success "Morpheus URL configured: $url"
+      else
+        read -p "Enter custom Morpheus URL: " custom_url
+        MCP_USER_CONFIGS["MORPHEUS_URL"]="$custom_url"
+        log_success "Morpheus URL configured: $custom_url"
+      fi
+      ;;
+
+    *)
+      log_warning "No specific configuration required for $mcp_name"
+      ;;
+  esac
+
+  echo ""
+  log_success "Configuration complete for $mcp_name"
+}
+
+# Interactive prompt for each MCP
+prompt_mcp_installation() {
+  local mcp_name="$1"
+  local mcp_config="$2"
+  local mcp_type="$3"  # "always-on" or "on-demand"
+
+  echo ""
+  echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+  echo -e "${BLUE}📦 Found MCP: ${GREEN}${mcp_name}${NC}"
+  echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
+  echo ""
+
+  # Display MCP information
+  local description=$(echo "$mcp_config" | jq -r '.description // "No description"')
+  local mcp_type_tag=$(echo "$mcp_config" | jq -r '.type // "unknown"')
+  local required=$(echo "$mcp_config" | jq -r '.required // false')
+
+  echo -e "${YELLOW}Description:${NC}   $description"
+  echo -e "${YELLOW}Type:${NC}          $mcp_type_tag"
+  echo -e "${YELLOW}Required:${NC}      $required"
+  echo -e "${YELLOW}Category:${NC}      $mcp_type"
+  echo ""
+
+  # Show what's needed
+  echo -e "${BLUE}📋 This MCP requires:${NC}"
+  case "$mcp_name" in
+    notion)
+      echo "  • NOTION_API_KEY (required)"
+      echo "  • Notion integration token from https://www.notion.so/my-integrations"
+      ;;
+    github)
+      echo "  • GITHUB_TOKEN (required)"
+      echo "  • Personal access token from https://github.com/settings/tokens"
+      echo "  • Required scopes: repo, read:org"
+      ;;
+    slack)
+      echo "  • SLACK_TOKEN (required)"
+      echo "  • Bot token from https://api.slack.com/apps"
+      echo "  • SLACK_SIGNING_SECRET (optional)"
+      ;;
+    figma-console)
+      echo "  • FIGMA_ACCESS_TOKEN (required)"
+      echo "  • Personal access token from https://www.figma.com/developers/api"
+      ;;
+    sentinel)
+      echo "  • SENTRY_DSN (required)"
+      echo "  • SENTRY_AUTH_TOKEN (optional)"
+      echo "  • Credentials from https://sentry.io/settings/"
+      ;;
+    data-proxy)
+      echo "  • VPN connection (if accessing remote server)"
+      echo "  • Database proxy URL (default: http://10.40.21.254:8100/sse)"
+      ;;
+    morpheus)
+      echo "  • Server URL (default: https://cody.smartjoules.org/sse)"
+      echo "  • No authentication typically required"
+      ;;
+    *)
+      echo "  • Standard installation"
+      ;;
+  esac
+  echo ""
+
+  # Ask for confirmation
+  if [ "$mcp_type" = "always-on" ]; then
+    echo -e "${YELLOW}This is an always-on MCP and will start automatically with Claude Code.${NC}"
+  else
+    echo -e "${YELLOW}This is an on-demand MCP and will activate when you use trigger keywords.${NC}"
+  fi
+  echo ""
+
+  read -p "Install and configure $mcp_name? [Y/n] " -n 1 -r
+  echo ""
+
+  if [[ $REPLY =~ ^[Nn]$ ]]; then
+    log_warning "Skipping $mcp_name"
+    return 1
+  fi
+
+  # If user wants to install, configure it interactively
+  configure_mcp_interactive "$mcp_name" "$mcp_config"
+  return 0
+}
+
 discover_mcp_configs() {
   log_info "Discovering MCP configurations..."
 
@@ -147,19 +487,52 @@ install_mcp_servers() {
 
   local configs=("$@")
   local mcp_servers="{}"
+  local mcp_type="$2"
 
-  # Merge all MCP configs
-  for config in "${configs[@]}"; do
-    if [ -f "$config" ]; then
-      log_info "Processing $config..."
-      # Use jq to merge JSON if available, otherwise append
+  # Parse each config file and prompt for each MCP
+  for config_file in "${configs[@]}"; do
+    if [ -f "$config_file" ]; then
+      log_info "Processing $config_file..."
+
+      # Get all MCP server names from this config
       if command -v jq &> /dev/null; then
-        mcp_servers=$(jq -s 'reduce .[] as $item ({}; . * $item)' "$config" <(echo "$mcp_servers"))
-      else
-        log_warning "jq not found, manual merge required"
+        local mcp_names=$(jq -r '.mcpServers | keys[]' "$config_file" 2>/dev/null || echo "")
+
+        for mcp_name in $mcp_names; do
+          # Get MCP config
+          local mcp_config=$(jq ".mcpServers[\"$mcp_name\"]" "$config_file")
+
+          # Determine if always-on or on-demand
+          local required=$(echo "$mcp_config" | jq -r '.required // false')
+          local category="on-demand"
+          if [ "$required" = "true" ]; then
+            category="always-on"
+          fi
+
+          # Skip if user specified --type and this doesn't match
+          if [ "$mcp_type" != "all" ] && [ "$mcp_type" != "$category" ]; then
+            log_info "Skipping $mcp_name (type: $category, requested: $mcp_type)"
+            continue
+          fi
+
+          # Interactive prompt
+          if prompt_mcp_installation "$mcp_name" "$mcp_config" "$category"; then
+            # User confirmed, add to installation list
+            mcp_servers=$(jq --arg name "$mcp_name" --argjson config "$mcp_config" '. + {($name): $config}' <<< "$mcp_servers")
+          fi
+        done
       fi
     fi
   done
+
+  # Check if any MCPs were selected
+  local mcp_count=$(echo "$mcp_servers" | jq 'length' 2>/dev/null || echo "0")
+  if [ "$mcp_count" -eq 0 ]; then
+    log_warning "No MCP servers selected for installation"
+    return 1
+  fi
+
+  log_success "Installing $mcp_count MCP server(s)"
 
   # Update Claude settings
   log_info "Updating Claude settings..."
@@ -179,39 +552,88 @@ install_mcp_servers() {
   fi
 }
 
-create_env_example() {
-  log_info "Creating environment variable example..."
+create_env_file() {
+  log_info "Creating environment file..."
 
-  local env_file="$REPO_ROOT/.env.mcp.example"
+  local env_file="$ENV_FILE"
 
-  cat > "$env_file" << 'EOF'
-# MCP Server Environment Variables
-# Copy this file to .env and fill in your values
+  # Create .env file with user-provided values
+  {
+    echo "# MCP Server Environment Variables"
+    echo "# Generated by MCP Installer on $(date)"
+    echo "# Load this file with: source $env_file"
+    echo ""
 
-# Notion MCP
-export NOTION_API_KEY="your_notion_integration_token_here"
-export NOTION_DATABASE_ID="your_database_id_here"
+    if [ -n "${MCP_USER_CONFIGS[NOTION_API_KEY]:-}" ]; then
+      echo "# Notion MCP"
+      echo "export NOTION_API_KEY=\"${MCP_USER_CONFIGS[NOTION_API_KEY]}\""
+      if [ -n "${MCP_USER_CONFIGS[NOTION_DATABASE_ID]:-}" ]; then
+        echo "export NOTION_DATABASE_ID=\"${MCP_USER_CONFIGS[NOTION_DATABASE_ID]}\""
+      fi
+      echo ""
+    fi
 
-# GitHub MCP
-export GITHUB_TOKEN="your_github_personal_access_token_here"
+    if [ -n "${MCP_USER_CONFIGS[GITHUB_TOKEN]:-}" ]; then
+      echo "# GitHub MCP"
+      echo "export GITHUB_TOKEN=\"${MCP_USER_CONFIGS[GITHUB_TOKEN]}\""
+      echo ""
+    fi
 
-# Slack MCP
-export SLACK_TOKEN="your_slack_bot_token_here"
-export SLACK_SIGNING_SECRET="your_slack_signing_secret_here"
+    if [ -n "${MCP_USER_CONFIGS[SLACK_TOKEN]:-}" ]; then
+      echo "# Slack MCP"
+      echo "export SLACK_TOKEN=\"${MCP_USER_CONFIGS[SLACK_TOKEN]}\""
+      if [ -n "${MCP_USER_CONFIGS[SLACK_SIGNING_SECRET]:-}" ]; then
+        echo "export SLACK_SIGNING_SECRET=\"${MCP_USER_CONFIGS[SLACK_SIGNING_SECRET]}\""
+      fi
+      echo ""
+    fi
 
-# Figma Console MCP
-export FIGMA_ACCESS_TOKEN="your_figma_access_token_here"
+    if [ -n "${MCP_USER_CONFIGS[FIGMA_ACCESS_TOKEN]:-}" ]; then
+      echo "# Figma Console MCP"
+      echo "export FIGMA_ACCESS_TOKEN=\"${MCP_USER_CONFIGS[FIGMA_ACCESS_TOKEN]}\""
+      echo ""
+    fi
 
-# Sentinel MCP (Sentry)
-export SENTRY_DSN="your_sentry_dsn_here"
-export SENTRY_AUTH_TOKEN="your_sentry_auth_token_here"
-export SENTRY_ORG="your_organization"
-export SENTRY_PROJECT="your_project_id"
-export SENTRY_ENDPOINT="https://sentry.example.com"
-EOF
+    if [ -n "${MCP_USER_CONFIGS[SENTRY_DSN]:-}" ]; then
+      echo "# Sentinel MCP (Sentry)"
+      echo "export SENTRY_DSN=\"${MCP_USER_CONFIGS[SENTRY_DSN]}\""
+      if [ -n "${MCP_USER_CONFIGS[SENTRY_AUTH_TOKEN]:-}" ]; then
+        echo "export SENTRY_AUTH_TOKEN=\"${MCP_USER_CONFIGS[SENTRY_AUTH_TOKEN]}\""
+      fi
+      if [ -n "${MCP_USER_CONFIGS[SENTRY_ORG]:-}" ]; then
+        echo "export SENTRY_ORG=\"${MCP_USER_CONFIGS[SENTRY_ORG]}\""
+      fi
+      if [ -n "${MCP_USER_CONFIGS[SENTRY_PROJECT]:-}" ]; then
+        echo "export SENTRY_PROJECT=\"${MCP_USER_CONFIGS[SENTRY_PROJECT]}\""
+      fi
+      echo ""
+    fi
 
-  log_success "Environment example created: $env_file"
-  log_info "Copy to .env and fill in your values"
+    if [ -n "${MCP_USER_CONFIGS[DATA_PROXY_URL]:-}" ]; then
+      echo "# Data Proxy MCP"
+      echo "export DATA_PROXY_URL=\"${MCP_USER_CONFIGS[DATA_PROXY_URL]}\""
+      echo ""
+    fi
+
+    if [ -n "${MCP_USER_CONFIGS[MORPHEUS_URL]:-}" ]; then
+      echo "# Morpheus MCP"
+      echo "export MORPHEUS_URL=\"${MCP_USER_CONFIGS[MORPHEUS_URL]}\""
+      echo ""
+    fi
+
+  } > "$env_file"
+
+  log_success "Environment file created: $env_file"
+
+  # Also create example file with placeholders
+  local env_example="$ENV_EXAMPLE_FILE"
+  cp "$env_file" "$env_example"
+
+  # Replace actual values with placeholders in example
+  sed -i.bak 's/"[^"]*"/"YOUR_VALUE_HERE"/g' "$env_example"
+  rm -f "${env_example}.bak"
+
+  log_success "Environment example created: $env_example"
 }
 
 verify_installation() {
@@ -247,24 +669,40 @@ show_next_steps() {
   echo ""
   log_info "Next steps:"
   echo ""
-  echo "1. Set environment variables:"
-  echo "   cp .env.mcp.example .env"
-  echo "   nano .env  # Add your API keys"
+
+  if [ -s "$ENV_FILE" ]; then
+    echo "1. Load environment variables:"
+    echo "   source $ENV_FILE"
+    echo ""
+    echo "   Or add to your shell profile (~/.bashrc or ~/.zshrc):"
+    echo "   echo 'source $ENV_FILE' >> ~/.zshrc"
+    echo ""
+  else
+    echo "1. No environment variables were configured."
+    echo "   You can add them later to $ENV_FILE"
+    echo ""
+  fi
+
+  echo "2. Restart Claude Code"
   echo ""
-  echo "2. Load environment variables:"
-  echo "   source .env"
+  echo "3. Test MCP servers:"
+  echo "   ./mcp-installer/bin/install-mcps.sh test"
   echo ""
-  echo "3. Restart Claude Code"
-  echo ""
-  echo "4. Test MCP servers:"
-  echo "   /mcp-installer test"
-  echo ""
-  echo "5. Use MCPs in conversations:"
+  echo "4. Use MCPs in conversations:"
   echo "   - Use Morpheus to query knowledge graphs"
   echo "   - Use data-proxy to query databases"
   echo "   - Get Figma designs"
   echo "   - Check system health with Sentinel"
   echo ""
+
+  # Show summary of configured MCPs
+  if [ ${#MCP_USER_CONFIGS[@]} -gt 0 ]; then
+    echo "✅ Configured with ${#MCP_USER_CONFIGS[@]} environment variable(s):"
+    for key in "${!MCP_USER_CONFIGS[@]}"; do
+      echo "   - $key"
+    done
+    echo ""
+  fi
 }
 
 install_all() {
@@ -309,12 +747,15 @@ install_all() {
   fi
 
   install_npm_packages
-  install_mcp_servers "${configs[@]}"
-  create_env_example
-  verify_installation
-  show_next_steps
-
-  log_success "Installation complete!"
+  if install_mcp_servers "${configs[@]}" "$install_type"; then
+    create_env_file
+    verify_installation
+    show_next_steps
+    log_success "Installation complete!"
+  else
+    log_warning "Installation cancelled - no MCP servers selected"
+    exit 0
+  fi
 }
 
 show_status() {

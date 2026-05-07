@@ -48,50 +48,48 @@ ASSISTANT="claude"
 
 # Help function
 show_help() {
-    cat << EOF
-${GREEN}AI-SDLC Skills Library Installer${NC}
-
-${YELLOW}Usage:${NC}
-    $0 [OPTIONS]
-
-${YELLOW}Options:${NC}
-    -d, --dir DIR          Installation directory (default: ~/.claude/skills)
-    -a, --assistant TYPE   Assistant type: claude, codex, cursor, copilot (default: claude)
-    -s, --skip-backup      Skip backup of existing skills
-    -h, --help             Show this help message
-
-${YELLOW}Examples:${NC}
-    # Install for Claude Code (default)
-    $0
-
-    # Install for Cursor
-    $0 --assistant cursor
-
-    # Install to custom directory
-    $0 --dir ~/my-skills
-
-    # Install without backup
-    $0 --skip-backup
-
-${YELLOW}Supported Assistants:${NC}
-    - claude   Claude Code (default)
-    - codex    OpenAI Codex
-    - cursor   Cursor AI Editor
-    - copilot  GitHub Copilot
-
-${YELLOW}Skills Included:${NC}
-    - AI Superpowers (Brainstorming & Planning)
-    - TDD Workflow
-    - Angular, React, Vue, Next.js Patterns
-    - State Management (Redux, Zustand, Pinia, NgRx)
-    - Node.js, Python, Go Patterns
-    - Database Patterns (PostgreSQL, InfluxDB, MongoDB, Redis)
-    - MQTT, Kafka, InfluxDB, IoT Architecture
-
-${YELLOW}Documentation:${NC}
-    https://github.com/itsatif/hyperbrain-skills
-
-EOF
+    echo -e "${GREEN}AI-SDLC Skills Library Installer${NC}"
+    echo ""
+    echo -e "${YELLOW}Usage:${NC}"
+    echo "    $0 [OPTIONS]"
+    echo ""
+    echo -e "${YELLOW}Options:${NC}"
+    echo "    -d, --dir DIR          Installation directory (default: ~/.claude/skills)"
+    echo "    -a, --assistant TYPE   Assistant type: claude, codex, cursor, copilot (default: claude)"
+    echo "    -s, --skip-backup      Skip backup of existing skills"
+    echo "    -h, --help             Show this help message"
+    echo ""
+    echo -e "${YELLOW}Examples:${NC}"
+    echo "    # Install for Claude Code (default)"
+    echo "    $0"
+    echo ""
+    echo "    # Install for Cursor"
+    echo "    $0 --assistant cursor"
+    echo ""
+    echo "    # Install to custom directory"
+    echo "    $0 --dir ~/my-skills"
+    echo ""
+    echo "    # Install without backup"
+    echo "    $0 --skip-backup"
+    echo ""
+    echo -e "${YELLOW}Supported Assistants:${NC}"
+    echo "    - claude   Claude Code (default)"
+    echo "    - codex    OpenAI Codex"
+    echo "    - cursor   Cursor AI Editor"
+    echo "    - copilot  GitHub Copilot"
+    echo ""
+    echo -e "${YELLOW}Skills Included:${NC}"
+    echo "    - AI Superpowers (Brainstorming & Planning)"
+    echo "    - TDD Workflow"
+    echo "    - Angular, React, Vue, Next.js Patterns"
+    echo "    - State Management (Redux, Zustand, Pinia, NgRx)"
+    echo "    - Node.js, Python, Go Patterns"
+    echo "    - Database Patterns (PostgreSQL, InfluxDB, MongoDB, Redis)"
+    echo "    - MQTT, Kafka, InfluxDB, IoT Architecture"
+    echo ""
+    echo -e "${YELLOW}Documentation:${NC}"
+    echo "    https://github.com/itsatif/hyperbrain-skills"
+    echo ""
 }
 
 # Parse command line arguments
@@ -136,13 +134,14 @@ main() {
     # Show installation plan
     echo ""
     print_info "Installation Plan:"
-    echo "  Assistant: ${GREEN}$ASSISTANT${NC}"
-    echo "  Install Dir: ${GREEN}$INSTALL_DIR${NC}"
-    echo "  Backup: ${YELLOW}$([ "$SKIP_BACKUP" = true ] && echo 'Skipping' || echo 'Yes (to '$BACKUP_DIR')')${NC}"
+    echo -e "  Assistant: ${GREEN}$ASSISTANT${NC}"
+    echo -e "  Install Dir: ${GREEN}$INSTALL_DIR${NC}"
+    echo -e "  Backup: ${YELLOW}$([ "$SKIP_BACKUP" = true ] && echo 'Skipping' || echo 'Yes (to '$BACKUP_DIR')')${NC}"
     echo ""
 
     # Confirm installation
-    read -p "$(echo -e ${YELLOW}Continue? [y/N]: ${NC})" -n 1 -r
+    echo -e "${YELLOW}Continue? [y/N]: ${NC}"
+    read -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         print_warning "Installation cancelled"
@@ -238,12 +237,12 @@ EOF
     print_success "Installation complete!"
     echo ""
     print_info "Next Steps:"
-    echo "  1. ${GREEN}Restart your AI assistant${NC}"
+    echo -e "  1. ${GREEN}Restart your AI assistant${NC}"
     echo "  2. Skills will be automatically available"
     echo "  3. Ask any question to activate AI Superpowers brainstorming"
     echo ""
     print_info "Documentation:"
-    echo "  ${BLUE}https://github.com/itsatif/hyperbrain-skills${NC}"
+    echo -e "  ${BLUE}https://github.com/itsatif/hyperbrain-skills${NC}"
     echo ""
     print_info "Skills installed:"
     list_installed_skills
@@ -310,7 +309,7 @@ list_installed_skills() {
     for skill in "${skills[@]}"; do
         local name=$(echo "$skill" | cut -d: -f1)
         local desc=$(echo "$skill" | cut -d: -f2)
-        echo "  ${GREEN}✓${NC} ${BLUE}${name}${NC} - ${desc}"
+        echo -e "  ${GREEN}✓${NC} ${BLUE}${name}${NC} - ${desc}"
     done
 }
 
